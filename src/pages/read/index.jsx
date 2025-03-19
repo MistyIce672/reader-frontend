@@ -123,7 +123,7 @@ const ReadPage = () => {
   };
 
   const handleBackToLibrary = () => {
-    navigate("/library");
+    navigate("/home");
   };
 
   if (error) {
