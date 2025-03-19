@@ -20,6 +20,33 @@ export class AuthService {
       return response.error;
     }
   }
+  async signup(email, password, username) {
+    let data = JSON.stringify({
+      email: email,
+      password: password,
+      username: username,
+    });
+
+    try {
+      const response = await fetch(`${API_URL}/api/auth/signup`, {
+        method: "POST",
+        body: data,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        return { success: true };
+      } else {
+        return { success: false, error: result.error };
+      }
+    } catch (error) {
+      return { success: false, error: "An error occurred during signup" };
+    }
+  }
   logout() {
     localStorage.removeItem(TOKEN_KEY);
   }
