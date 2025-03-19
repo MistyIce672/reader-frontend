@@ -1,7 +1,17 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { authService } from "../../services/auth.service";
 
 const LandingPage = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if user has a token
+    const token = authService.getUser();
+    if (token) {
+      navigate("/home");
+    }
+  }, [navigate]);
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
