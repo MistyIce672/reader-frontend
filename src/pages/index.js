@@ -4,4 +4,6 @@ import BookDetails from "./bookDetails";
 import ReadPage from "./read";
 import Signup from "./signup";
 import LandingPage from "./landing";
-export { Login, Home, BookDetails, ReadPage, Signup, LandingPage };
+import CreateBook from "./createBook";
+
+export { Login, Home, BookDetails, ReadPage, Signup, LandingPage, CreateBook };

@@ -32,6 +32,18 @@ export class BookService {
     });
     return res.json();
   }
+  async createBook(bookData) {
+    const token = authService.getUser();
+    const res = await fetch(`${API_URL}/api/books/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+      body: JSON.stringify(bookData),
+    });
+    return res.json();
+  }
 }
 
 export const bookService = new BookService();

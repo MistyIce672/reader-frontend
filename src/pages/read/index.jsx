@@ -12,6 +12,7 @@ const ReadPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
+  const [showOriginal, setShowOriginal] = useState(false);
 
   const { bookId, page } = useParams();
   const navigate = useNavigate();
@@ -51,12 +52,20 @@ const ReadPage = () => {
   const handleWordClick = (sentence, word) => {
     setOriginal(false);
     setTranslatedWord(null);
-    if (sentenceIndex == sentence && wordIndex == word) {
-      setWordIndex(-1);
-      return;
+    if (sentenceIndex == sentence) {
+      if (wordIndex == word) {
+        setWordIndex(-1);
+        return;
+      } else if (wordIndex == -1) {
+        setWordIndex(null);
+        setSentenceIndex(null);
+      } else {
+        setWordIndex(word);
+      }
+    } else {
+      setWordIndex(word);
+      setSentenceIndex(sentence);
     }
-    setWordIndex(word);
-    setSentenceIndex(sentence);
   };
 
   const handleAddWords = async () => {
@@ -103,6 +112,8 @@ const ReadPage = () => {
         setError("Failed to translate word");
         console.error(err);
       }
+    } else if (wordIndex == null && sentenceIndex == null) {
+      setShowOriginal(!showOriginal);
     }
   };
 
@@ -132,145 +143,186 @@ const ReadPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-4">
-      {showPopup && pageContent.mostCommonWords && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
-            <h2 className="text-xl font-bold mb-4">Most Common Words</h2>
-            <div className="mb-4">
-              {pageContent.mostCommonWords.map((word, index) => (
-                <div key={index} className="mb-2 p-2 bg-gray-100 rounded">
-                  <span className="font-bold">{word.word}</span> -{" "}
-                  <span>{word.translation}</span>
-                  <span className="text-gray-500 ml-2">
-                    (Frequency: {word.frequency})
-                  </span>
-                </div>
-              ))}
+      <div className="bg-white shadow">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-between items-center">
+            <button
+              onClick={handleBackToLibrary}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200"
+            >
+              Back to Library
+            </button>
+            <div className="text-gray-600">
+              Page {page} of {pageContent.totalPages}
             </div>
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={handleIgnore}
-                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-              >
-                Ignore
-              </button>
-              <button
-                onClick={handleAddWords}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Add to Words
-              </button>
+          </div>
+        </div>
+      </div>
+      {/* Common Words Popup */}
+      {showPopup && pageContent.mostCommonWords && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full m-4">
+            <div className="p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
+                Most Common Words
+              </h2>
+              <div className="space-y-2 mb-6">
+                {pageContent.mostCommonWords.map((word, index) => (
+                  <div
+                    key={index}
+                    className="p-3 bg-gray-50 rounded-md flex justify-between items-center"
+                  >
+                    <div>
+                      <span className="font-medium text-indigo-600">
+                        {word.word}
+                      </span>{" "}
+                      -{" "}
+                      <span className="text-gray-700">{word.translation}</span>
+                    </div>
+                    <span className="text-sm text-gray-500">
+                      Frequency: {word.frequency}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-end space-x-4">
+                <button
+                  onClick={handleIgnore}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  Ignore
+                </button>
+                <button
+                  onClick={handleAddWords}
+                  className="px-4 py-2 border border-transparent rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+                >
+                  Add to Words
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
-      <div className="mb-8">
-        <button
-          onClick={handleBackToLibrary}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
-        >
-          Back to Library
-        </button>
-        <h1 className="text-3xl font-bold text-center my-4">{""}</h1>
-        <div className="text-center text-gray-600">
-          Page {page} of {pageContent.totalPages}
-        </div>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-        {loading ? (
-          <div className="text-center text-gray-600">Loading...</div>
-        ) : (
-          <div className="prose max-w-none">
-            {pageContent.translations.map((translation, sIndex) => (
-              <span
-                key={sIndex}
-                className={`${wordIndex == -1 ? (sentenceIndex == sIndex ? "bg-yellow-200" : "") : ""}`}
-              >
-                <>
-                  {original && sIndex == sentenceIndex ? (
-                    <span className="text-gray-500">
-                      {translation.original}
-                    </span>
-                  ) : (
-                    <>
-                      {translation.translated.split(" ").map((word, wIndex) => {
-                        const translationResult = checkAndTranslate(word);
-                        return (
-                          <span
-                            className={`${
-                              sentenceIndex == sIndex
-                                ? wordIndex == wIndex
-                                  ? "bg-sky-200"
-                                  : ""
-                                : ""
-                            } ${translationResult.isTranslated ? "bg-green-100" : ""}`}
-                            onClick={() => {
-                              handleWordClick(sIndex, wIndex);
-                            }}
-                            key={wIndex}
-                          >
-                            {sentenceIndex == sIndex
-                              ? wordIndex == wIndex
-                                ? translatedWord
-                                  ? translatedWord
-                                  : word
-                                : translationResult.word
-                              : translationResult.word}{" "}
-                          </span>
-                        );
-                      })}
-                    </>
-                  )}
-                </>
-              </span>
-            ))}
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {error && (
+          <div className="rounded-md bg-red-50 p-4 mb-6">
+            <div className="text-red-700">{error}</div>
           </div>
         )}
-      </div>
 
-      <div className="flex justify-between gap-4">
-        <button
-          onClick={handlePreviousPage}
-          disabled={page === 1}
-          className={`px-4 py-2 rounded-lg ${
-            page === 1
-              ? "bg-gray-300 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-600 text-white"
-          }`}
-        >
-          Previous Page
-        </button>
-        {wordIndex == -1 ? (
-          <button
-            onClick={toggleOriginal}
-            className="px-4 py-2 rounded-lg ${
-          page === pageContent.totalPages bg-blue-500 hover:bg-blue-600 text-white"
-          >
-            {original ? "Show Translated" : "Show Original"}
-          </button>
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="text-indigo-600">Loading...</div>
+          </div>
         ) : (
-          <button
-            onClick={handleTranslate}
-            className="px-4 py-2 rounded-lg ${
-          page === pageContent.totalPages bg-blue-500 hover:bg-blue-600 text-white"
-          >
-            {!translatedWord ? "Show Original" : "Translate"}
-            Translate
-          </button>
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className="p-6 prose max-w-none">
+              {pageContent.translations?.map((translation, sIndex) => (
+                <span
+                  key={sIndex}
+                  className={`${
+                    wordIndex == -1
+                      ? sentenceIndex == sIndex
+                        ? "bg-indigo-100"
+                        : ""
+                      : ""
+                  }`}
+                >
+                  <>
+                    {showOriginal ? ( // Check if showOriginal is true
+                      <span className="text-gray-500">
+                        {translation.original}
+                      </span>
+                    ) : original && sIndex == sentenceIndex ? (
+                      <span className="text-gray-500">
+                        {translation.original}
+                      </span>
+                    ) : (
+                      <>
+                        {translation.translated
+                          .split(" ")
+                          .map((word, wIndex) => {
+                            const translationResult = checkAndTranslate(word);
+                            return (
+                              <span
+                                className={`${
+                                  sentenceIndex == sIndex
+                                    ? wordIndex == wIndex
+                                      ? "bg-sky-200"
+                                      : ""
+                                    : ""
+                                } ${translationResult.isTranslated ? "bg-green-100" : ""}`}
+                                onClick={() => {
+                                  handleWordClick(sIndex, wIndex);
+                                }}
+                                key={wIndex}
+                              >
+                                {sentenceIndex == sIndex
+                                  ? wordIndex == wIndex
+                                    ? translatedWord
+                                      ? translatedWord
+                                      : word
+                                    : translationResult.word
+                                  : translationResult.word}{" "}
+                              </span>
+                            );
+                          })}
+                      </>
+                    )}
+                  </>
+                </span>
+              ))}
+            </div>
+          </div>
         )}
-        <button
-          onClick={handleNextPage}
-          disabled={page === pageContent.totalPages}
-          className={`px-4 py-2 rounded-lg ${
-            page === pageContent.totalPages
-              ? "bg-gray-300 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-600 text-white"
-          }`}
-        >
-          Next Page
-        </button>
-      </div>
+
+        {/* Navigation Controls */}
+        <div className="mt-8 flex justify-between items-center space-x-4">
+          <button
+            onClick={handlePreviousPage}
+            disabled={page === 1}
+            className={`px-4 py-2 rounded-md ${
+              page === 1
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "text-white bg-indigo-600 hover:bg-indigo-700"
+            }`}
+          >
+            Previous Page
+          </button>
+
+          {wordIndex == -1 ? (
+            <button
+              onClick={toggleOriginal}
+              className="px-4 py-2 rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+            >
+              {original ? "Show Translated" : "Show Original"}
+            </button>
+          ) : (
+            <button
+              onClick={handleTranslate}
+              className="px-4 py-2 rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+            >
+              {!translatedWord
+                ? !showOriginal
+                  ? "Show Original"
+                  : "Translate"
+                : "Translate"}
+            </button>
+          )}
+
+          <button
+            onClick={handleNextPage}
+            disabled={page === pageContent.totalPages}
+            className={`px-4 py-2 rounded-md ${
+              page === pageContent.totalPages
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "text-white bg-indigo-600 hover:bg-indigo-700"
+            }`}
+          >
+            Next Page
+          </button>
+        </div>
+      </main>
     </div>
   );
 };
