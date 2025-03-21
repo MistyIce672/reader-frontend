@@ -24,6 +24,7 @@ const CommonWordsPopup = ({
           translatedWord: word.word,
           originalLanguage: pageContent.originalLanguage,
           translatedLanguage: pageContent.translatedLanguage,
+          translate: true,
         };
 
         setPageContent((prevContent) => ({
@@ -31,6 +32,7 @@ const CommonWordsPopup = ({
           knownWords: [...(prevContent.knownWords || []), newKnownWord],
         }));
       } else if (action === "dont-translate") {
+        console.log("dont");
         await wordService.addWord({
           originalWord: word.translation,
           translatedWord: word.word,
