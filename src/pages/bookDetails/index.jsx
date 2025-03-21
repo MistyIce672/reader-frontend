@@ -28,6 +28,12 @@ const BookDetails = () => {
     navigate(`/books/${bookId}/read/${book.pageNumber}`);
   };
 
+  const handleKnownWordsClick = () => {
+    navigate(
+      `/known-words/${book.originalLanguage}/${book.translatedLanguage}`,
+    );
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex justify-center items-center">
@@ -121,6 +127,14 @@ const BookDetails = () => {
                     File Name:
                   </span>
                   <span className="text-gray-900">{book.file.name}</span>
+                </div>
+                <div className="mt-6 flex justify-center">
+                  <button
+                    onClick={handleKnownWordsClick}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+                  >
+                    See Known Words
+                  </button>
                 </div>
               </div>
             </div>

@@ -4,6 +4,7 @@ import {
   BookDetails,
   CreateBook,
   Home,
+  KnowWords,
   LandingPage,
   Login,
   ReadPage,
@@ -24,6 +25,10 @@ function App() {
           <Route path="/add-book" element={<CreateBook />} />
           <Route path="/books/:bookId" element={<BookDetails />} />
           <Route path="/books/:bookId/read/:page" element={<ReadPage />} />
+          <Route
+            path="/known-words/:originalLanguage/:translatedLanguage"
+            element={<KnowWords />}
+          />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>

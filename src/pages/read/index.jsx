@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { bookService } from "../../services/book.service";
 import { wordService } from "../../services/word.service";
+import CommonWordsPopup from "./components/CommonWordsPopup";
 
 const ReadPage = () => {
   const [pageContent, setPageContent] = useState({});
@@ -40,11 +41,11 @@ const ReadPage = () => {
     const searchWord = word.toLowerCase();
 
     const foundWord = pageContent.knownWords.find(
-      (knownWord) => knownWord.translation.toLowerCase() == searchWord,
+      (knownWord) => knownWord.translatedWord.toLowerCase() == searchWord,
     );
 
     return {
-      word: foundWord ? foundWord.word : word,
+      word: foundWord ? foundWord.originalWord : word,
       isTranslated: !!foundWord,
     };
   };
@@ -66,27 +67,6 @@ const ReadPage = () => {
       setWordIndex(word);
       setSentenceIndex(sentence);
     }
-  };
-
-  const handleAddWords = async () => {
-    try {
-      await wordService.addWord(
-        pageContent.mostCommonWords.map((item) => item.word),
-        pageContent.originalLanguage,
-      );
-      setShowPopup(false);
-
-      // Recall the API to get updated page content
-      const updatedContent = await bookService.getPage(bookId, page);
-      setPageContent(updatedContent);
-    } catch (err) {
-      setError("Failed to add words");
-      console.error(err);
-    }
-  };
-
-  const handleIgnore = () => {
-    setShowPopup(false);
   };
 
   const handleTranslate = async () => {
@@ -160,48 +140,13 @@ const ReadPage = () => {
       </div>
       {/* Common Words Popup */}
       {showPopup && pageContent.mostCommonWords && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full m-4">
-            <div className="p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">
-                Most Common Words
-              </h2>
-              <div className="space-y-2 mb-6">
-                {pageContent.mostCommonWords.map((word, index) => (
-                  <div
-                    key={index}
-                    className="p-3 bg-gray-50 rounded-md flex justify-between items-center"
-                  >
-                    <div>
-                      <span className="font-medium text-indigo-600">
-                        {word.word}
-                      </span>{" "}
-                      -{" "}
-                      <span className="text-gray-700">{word.translation}</span>
-                    </div>
-                    <span className="text-sm text-gray-500">
-                      Frequency: {word.frequency}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <div className="flex justify-end space-x-4">
-                <button
-                  onClick={handleIgnore}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                >
-                  Ignore
-                </button>
-                <button
-                  onClick={handleAddWords}
-                  className="px-4 py-2 border border-transparent rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
-                >
-                  Add to Words
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <CommonWordsPopup
+          mostCommonWords={pageContent.mostCommonWords}
+          setPageContent={setPageContent}
+          setShowPopup={setShowPopup}
+          setError={setError}
+          pageContent={pageContent}
+        />
       )}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {error && (
