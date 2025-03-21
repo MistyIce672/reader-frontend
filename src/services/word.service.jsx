@@ -3,7 +3,6 @@ import { authService } from "./auth.service";
 
 export class WordService {
   async addWord(wordData) {
-    console.log(wordData);
     const token = authService.getUser();
     const res = await fetch(`${API_URL}/api/words`, {
       method: "POST",
