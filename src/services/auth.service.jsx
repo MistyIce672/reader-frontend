@@ -1,4 +1,4 @@
-import { API_URL } from "../api";
+import { API_URL, authFetch } from "../api";
 
 const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY || "user_";
 
@@ -67,6 +67,22 @@ export class AuthService {
     } catch (err) {
       console.log(err);
       return {};
+    }
+  }
+
+  async getMe() {
+    const token = this.getUser();
+    if (!token) return null;
+    try {
+      const res = await authFetch(`${API_URL}/api/auth/me`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+      });
+      return res.json();
+    } catch (error) {
+      return null;
     }
   }
 }

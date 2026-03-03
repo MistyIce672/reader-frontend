@@ -1,10 +1,10 @@
-import { API_URL } from "../api";
+import { API_URL, authFetch } from "../api";
 import { authService } from "./auth.service";
 
 export class WordService {
   async addWord(wordData) {
     const token = authService.getUser();
-    const res = await fetch(`${API_URL}/api/words`, {
+    const res = await authFetch(`${API_URL}/api/words`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -23,14 +23,13 @@ export class WordService {
 
   async translate(word, lng, transLng) {
     const token = authService.getUser();
-    const res = await fetch(`${API_URL}/api/words/translation`, {
-      method: "POST", // Add the POST method
+    const res = await authFetch(`${API_URL}/api/words/translation`, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: token,
       },
       body: JSON.stringify({
-        // Add the request body
         word: word,
         originalLanguage: lng,
         translatedLanguage: transLng,
@@ -40,7 +39,7 @@ export class WordService {
   }
   async getWordsByLanguages(originalLanguage, translatedLanguage) {
     const token = authService.getUser();
-    const res = await fetch(
+    const res = await authFetch(
       `${API_URL}/api/words/${originalLanguage}/${translatedLanguage}`,
       {
         method: "GET",
@@ -54,7 +53,7 @@ export class WordService {
   }
   async deleteWord(wordId) {
     const token = authService.getUser();
-    const res = await fetch(`${API_URL}/api/words/${wordId}`, {
+    const res = await authFetch(`${API_URL}/api/words/${wordId}`, {
       method: "DELETE",
       headers: {
         Authorization: token,
@@ -65,7 +64,7 @@ export class WordService {
 
   async updateTranslate(wordId, translate) {
     const token = authService.getUser();
-    const res = await fetch(`${API_URL}/api/words/${wordId}`, {
+    const res = await authFetch(`${API_URL}/api/words/${wordId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",

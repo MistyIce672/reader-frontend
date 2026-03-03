@@ -1,10 +1,10 @@
-import { API_URL } from "../api";
+import { API_URL, authFetch } from "../api";
 import { authService } from "./auth.service";
 
 export class BookService {
   async getAllUserBooks() {
     const token = authService.getUser();
-    const res = await fetch(`${API_URL}/api/books/`, {
+    const res = await authFetch(`${API_URL}/api/books/`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: token,
@@ -14,7 +14,7 @@ export class BookService {
   }
   async getBookDetails(bookId) {
     const token = authService.getUser();
-    const res = await fetch(`${API_URL}/api/books/${bookId}`, {
+    const res = await authFetch(`${API_URL}/api/books/${bookId}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: token,
@@ -24,7 +24,7 @@ export class BookService {
   }
   async getPage(bookId, page) {
     const token = authService.getUser();
-    const res = await fetch(`${API_URL}/api/books/${bookId}/${page}`, {
+    const res = await authFetch(`${API_URL}/api/books/${bookId}/${page}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: token,
@@ -34,7 +34,7 @@ export class BookService {
   }
   async createBook(bookData) {
     const token = authService.getUser();
-    const res = await fetch(`${API_URL}/api/books/`, {
+    const res = await authFetch(`${API_URL}/api/books/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

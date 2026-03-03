@@ -1,11 +1,11 @@
-import { API_URL } from "../api";
+import { API_URL, authFetch } from "../api";
 import { authService } from "./auth.service";
 
 export class TranslateService {
   async getLanguages() {
     const token = authService.getUser();
     try {
-      const res = await fetch(`${API_URL}/api/translate/languages`, {
+      const res = await authFetch(`${API_URL}/api/translate/languages`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: token,
