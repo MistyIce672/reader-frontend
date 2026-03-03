@@ -8,9 +8,11 @@ function Home() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     fetchBooks();
+    checkAdmin();
   }, []);
 
   const fetchBooks = async () => {
@@ -21,6 +23,17 @@ function Home() {
     } catch (err) {
       setError("Failed to fetch books");
       setLoading(false);
+    }
+  };
+
+  const checkAdmin = async () => {
+    try {
+      const user = await authService.getMe();
+      if (user && user.role === "admin") {
+        setIsAdmin(true);
+      }
+    } catch (err) {
+      // not admin, ignore
     }
   };
 
@@ -50,8 +63,21 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Add logout button */}
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-4 right-4 flex space-x-3">
+        <Link
+          to="/public-books"
+          className="px-4 py-2 text-sm font-medium text-green-700 bg-green-100 rounded-md hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+        >
+          Public Library
+        </Link>
+        {isAdmin && (
+          <Link
+            to="/admin"
+            className="px-4 py-2 text-sm font-medium text-amber-700 bg-amber-100 rounded-md hover:bg-amber-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+          >
+            Admin
+          </Link>
+        )}
         <button
           onClick={handleLogout}
           className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"

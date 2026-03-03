@@ -9,6 +9,10 @@ import {
   Login,
   ReadPage,
   Signup,
+  PublicBooks,
+  PublicBookDetails,
+  PublicBookRead,
+  Admin,
 } from "./pages";
 
 const queryClient = new QueryClient();
@@ -29,6 +33,10 @@ function App() {
             path="/known-words/:originalLanguage/:translatedLanguage"
             element={<KnowWords />}
           />
+          <Route path="/public-books" element={<PublicBooks />} />
+          <Route path="/public-books/:bookId" element={<PublicBookDetails />} />
+          <Route path="/public-books/:bookId/read/:page" element={<PublicBookRead />} />
+          <Route path="/admin" element={<Admin />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
