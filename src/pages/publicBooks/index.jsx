@@ -1,0 +1,124 @@
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { publicBookService } from "../../services/publicBook.service";
+import { authService } from "../../services/auth.service";
+
+function PublicBooks() {
+  const navigate = useNavigate();
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchBooks();
+  }, []);
+
+  const fetchBooks = async () => {
+    try {
+      const data = await publicBookService.getAllPublicBooks();
+      setBooks(data.data);
+      setLoading(false);
+    } catch (err) {
+      setError("Failed to fetch public books");
+      setLoading(false);
+    }
+  };
+
+  const handleBookClick = (bookId) => {
+    navigate(`/public-books/${bookId}`);
+  };
+
+  const handleLogout = () => {
+    authService.logout();
+    navigate("/login");
+  };
+
+  if (loading)
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-indigo-600 text-xl">Loading...</div>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-red-600 text-xl">{error}</div>
+      </div>
+    );
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="absolute top-4 right-4 flex space-x-3">
+        <Link
+          to="/home"
+          className="px-4 py-2 text-sm font-medium text-indigo-600 bg-white border border-indigo-300 rounded-md hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          My Library
+        </Link>
+        <button
+          onClick={handleLogout}
+          className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          Logout
+        </button>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="lg:text-left mb-12">
+          <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+            Public Library
+          </h1>
+          <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg">
+            Explore books available to everyone at reduced rates.
+          </p>
+          <span className="mt-2 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+            5x Cheaper per page
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {books.map((book) => (
+            <div
+              key={book._id}
+              onClick={() => handleBookClick(book._id)}
+              className="aspect-[1/1.4142] border rounded-lg shadow-sm hover:shadow-lg transition-shadow cursor-pointer bg-white overflow-hidden hover:border-indigo-500"
+            >
+              <div className="h-full p-6 flex flex-col">
+                <div className="mb-2">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                    5x Cheaper
+                  </span>
+                </div>
+                <h2 className="text-xl font-semibold mb-2 text-gray-900 line-clamp-2">
+                  {book.title}
+                </h2>
+                {book.description && (
+                  <p className="text-gray-500 text-sm flex-grow line-clamp-4">
+                    {book.description}
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {books.length === 0 && (
+          <div className="text-center mt-12">
+            <p className="text-xl text-gray-600 mb-4">
+              No public books available yet. Check back soon!
+            </p>
+            <Link
+              to="/home"
+              className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+            >
+              Back to My Library
+            </Link>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default PublicBooks;
